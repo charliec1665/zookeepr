@@ -16,6 +16,8 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 // parse incoming JSON data
 app.use(express.json());
+// instructs the app to use the public folder in order to acces front-end files
+app.use(express.static('public'));
 
 function filterByQuery(query, animalsArray) {
     let personalityTraitsArray = [];
@@ -51,12 +53,12 @@ function filterByQuery(query, animalsArray) {
         filteredResults = filteredResults.filter(animal => animal.name === query.name);
     }
     return filteredResults;
-}
+};
 
 function findById(id, animalsArray) {
     const result = animalsArray.filter(animal => animal.id === id)[0];
     return result;
-}
+};
 
 function createNewAnimal (body, animalsArray) {
     const animal = body;
@@ -68,7 +70,7 @@ function createNewAnimal (body, animalsArray) {
 
     // return finished code to post route for response
     return animal;
-}
+};
 
 function validateAnimal(animal) {
     if (!animal.name || typeof animal.name !== 'string') {
@@ -84,7 +86,7 @@ function validateAnimal(animal) {
         return false;
     }
     return true;
-}
+};
 
 // get method requires two arguments, the route the client will fetch from
     // and the callback function that will execute every time the route is accessed with a GET request
@@ -94,7 +96,7 @@ app.get('/api/animals', (req, res) => {
         results = filterByQuery(req.query, results);
     }
     res.json(results);
-})
+});
 
 // param(eter) routes must come after the other GET route
 // req.param is specific to a single property, often intended to get a single record
@@ -106,7 +108,7 @@ app.get('/api/animals/:id', (req, res) => {
     } else {
         res.send(404);
     }
-})
+});
 
 // .post routes listen for POST requests instead of GET requests. POST requests represent a client requesting
     // that the server ACCEPT data.
@@ -126,7 +128,25 @@ app.post('/api/animals', (req, res) => {
     }
 });
 
-// set the server up to listen using the listen() method
+// sends the HTML webpage back to the client
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'));
+});
+
+app.get('/animals', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/animals.html'));
+});
+
+app.get('/zookeepers', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/zookeepers.html'));
+});
+
+// the catch-all wildcard route should always come last, or it will catch ALL endpoints, even defined ones like /zookeepers
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'));
+});
+
+// set the server up to listen using the listen() method, this should always be last
 app.listen(PORT, () => {
     console.log(`API server now on port ${PORT}`);
 });
