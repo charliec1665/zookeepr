@@ -1,3 +1,5 @@
+// heroku link https://morning-coast-38766.herokuapp.com/api/animals
+
 const express = require('express');
 const { animals } = require('./data/animals.json');
 
@@ -43,6 +45,11 @@ function filterByQuery(query, animalsArray) {
     return filteredResults;
 }
 
+function findById(id, animalsArray) {
+    const result = animalsArray.filter(animal => animal.id === id)[0];
+    return result;
+}
+
 // get method requires two arguments, the route the client will fetch from
     // and the callback function that will execute every time the route is accessed with a GET request
 app.get('/api/animals', (req, res) => {
@@ -51,6 +58,18 @@ app.get('/api/animals', (req, res) => {
         results = filterByQuery(req.query, results);
     }
     res.json(results);
+})
+
+// param(eter) routes must come after the other GET route
+// req.param is specific to a single property, often intended to get a single record
+// vs req.query which is multifaceted and often combines multiple parameters
+app.get('/api/animals/:id', (req, res) => {
+    const result = findById(req.params.id, animals);
+    if (result) {
+        res.json(result);
+    } else {
+        res.send(404);
+    }
 })
 
 // set the server up to listen using the listen() method
